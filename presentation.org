@@ -1,0 +1,161 @@
+#+TITLE: High-throughput low-latency Haskell
+#+AUTHOR: Mathieu Boespflug
+#+EMAIL: m@tweag.io
+
+#+OPTIONS: reveal_center:t reveal_progress:t reveal_history:nil reveal_control:nil
+#+OPTIONS: reveal_rolling_links:t reveal_keyboard:t reveal_overview:t num:nil
+#+OPTIONS: reveal_width:1200 reveal_height:800
+#+OPTIONS: toc:0
+#+OPTIONS: timestamp:nil
+#+REVEAL_EXTRA_CSS: ./local.css
+#+REVEAL_HLEVEL: 2
+#+REVEAL_MARGIN: 0.1
+#+REVEAL_MAX_SCALE: 2.5
+#+REVEAL_MIN_SCALE: 0.5
+#+REVEAL_PLUGINS: (highlight)
+#+REVEAL_ROOT: http://cdn.jsdelivr.net/reveal.js/3.0.0/
+#+REVEAL_THEME: white
+#+REVEAL_TRANS: cube
+
+# ** Preamble
+# - Our goal with some of our projects that you might have already heard
+#   of, such as adding linear types to GHC, 
+# - what we're doing with linear types and other projects i'll talk to
+#   you about is just icing on the cake.
+* Our mission
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp
+
+#+attr_html: :width 400px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./tweag-logo.svg]]
+* 
+#+attr_html: :width 900px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./thinthrough.svg]]
+* 
+#+attr_html: :width 900px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./fatthrough.svg]]
+* 
+#+attr_html: :width 900px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./alloc.svg]]
+* 
+#+attr_html: :width 900px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./alloclat.svg]]
+* 
+#+attr_html: :width 900px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./nicram.svg]]
+* Evolutions in hardware
+- I/O used to be slow, but now it's pretty fast (SSD's, NVRAM's,
+  100G).
+- NVRAM's can reach sub-microsecond latency.
+- Typical datacenter interconnect: Infiniband or Ethernet 40G.
+- by 2019, 100-gigabit-per-second (100G) Ethernet will make up more
+  than 50 percent of data center optical transceiver transmissions.
+- Current generation Xeon: 15GB/s per channel, 8 channels per CPU.
+- Network end-to-end latencies approaching RAM latencies.
+* Implications for software
+#+attr_html: :width 1000px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./delugetbl.png]]
+* Implications for software
+- Software becoming a prime contributor to latency.
+- Effects that used to be hidden by hardware latency are now limiting
+  factors.
+- Poll where interrupts used to be better.
+- Cost of a syscall: ~50ns for `read()`/`write()` of small messages.
+  + Comparable to transmit time for an MTU-sized message.
+** Use cases
+*** Pusher
+- Publish/subscribe service for web and mobile.
+- Target latencies: 5ms average, 100ms 99th percentile.
+- Small messages (100-10k bytes)
+#+attr_html: :width 900px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./queue.svg]]
+*** Search
+#+attr_html: :width 1000px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./search_query.png]]
+*** HFT
+#+attr_html: :width 1000px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./hft.gif]]
+* Increasing throughput
+** Batching
+#+attr_html: :width 900px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./batching.svg]]
+** Contention
+- Locks are cheap...
+- ... except when they're contented!
+- In general, I/O resources more expensive when contended.
+- Contention can hurt throughput pretty drastically.
+** Overlap
+#+attr_html: :width 900px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./overlap.svg]]
+
+- Bad idea for contended resources.
+- But not all I/O resources are contended.
+** Scaling
+#+attr_html: :width 900px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./scaling2.svg]]
+** data locality
+- Faster layers in the I/O hierarchy, but stronger penalty for random
+  access.
+- Much higher throughput at steady state.
+- CPU's a lot more efficient when code and data already in cache.
+* Is Haskell equipped for high-throughput low-latency?
+** CPU bound services
+- Mature state-of-the-art native code compiler does wonders
+- GHC pretty good at avoiding:
+  + unnecessary data copies while retaining modularity.
+  + fusing repeated access into sequential access.
+- Could do better still:
+  + guarantee absence of data copies.
+  + better support for vectorization (SIMD).
+** I/O bound services
+- poor locality
+- no prioritization
+- high synchronization costs (MVar, oneshot).
+#+attr_html: :width 600px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./chart.png]]
+* Programmable concurrency
+** Idea: perform scheduling in Haskell
+- This is already what monad-par does.
+- This is also what Finagle (JVM) / Wangle (C++) do.
+- Empowers user to choose scheduling policy according to task type.
+- Improve throughput of I/O bound tasks with LIFO policy.
+- Round robin for CPU bound tasks (fairness).
+** Coroutine monad (aka Cont)
+#+BEGIN_SRC haskell
+newtype Co r m a = Co ((a -> m r) -> m r)
+
+fork :: Co r m a -> Co CoroutineId
+read :: Handle -> Int -> Co ByteString
+write :: Handle -> ByteString -> Co ()
+connect :: Address -> Co Connection
+...
+#+END_SRC
+
+#+ATTR_REVEAL: :frag fade-in
+- Downsides:
+  + antimodular!
+  + closure allocation overhead.
+  + Solution: use sparks.
+  + have to reimplement I/O management manually.
+* Further challenges
+** It's peak latency that matters
+#+attr_html: :width 1000px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./spikes.png]]
+** What makes latency vary in a Haskell program?
+- Non-deterministic workload.
+- The system is an important source of latency.
+- Non-deterministic scheduling decisions.
+- Garbage collection!
+** How does garbage collection work?
+#+attr_html: :width 900px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./gc1.svg]]
+** Solution: off-heap memory allocation
+#+attr_html: :width 900px
+\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./gc2.svg]]
+* Conclusion
+- Many strategies to mitigate latency and increase throughput.
+- But often a tradeoff: increasing throughput sometimes hurts e2e latency.
+- Haskell well equipped to achieve good throughput, most of the time.
+- But need better strategies to keep latencies bounded and predictable.
+- DIY I/O management should be part of your toolkit.

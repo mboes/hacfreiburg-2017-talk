@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>High-throughput low-latency Haskell</title>
+<meta name="author" content="(Mathieu Boespflug)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/reveal.js/3.0.0/css/reveal.css"/>
+
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/reveal.js/3.0.0/css/theme/white.css" id="theme"/>
+
+<link rel="stylesheet" href="./local.css"/>
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/reveal.js/3.0.0/lib/css/zenburn.css"/>
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'http://cdn.jsdelivr.net/reveal.js/3.0.0/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide"><h1 class="title">High-throughput low-latency Haskell</h1><h2 class="author">Mathieu Boespflug</h2>
+</section>
+<section>
+<section id="slide-org4e12c56">
+<h2 id="org4e12c56">Our mission</h2>
+<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</p>
+
+<p width="400px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./tweag-logo.svg" class="org-svg" width="400px">
+Sorry, your browser does not support SVG.</object>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-orga7fea1a">
+<h2 id="orga7fea1a"></h2>
+<p width="900px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./thinthrough.svg" class="org-svg" width="900px">
+Sorry, your browser does not support SVG.</object>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org8a7ac51">
+<h2 id="org8a7ac51"></h2>
+<p width="900px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./fatthrough.svg" class="org-svg" width="900px">
+Sorry, your browser does not support SVG.</object>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-orge2d6033">
+<h2 id="orge2d6033"></h2>
+<p width="900px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./alloc.svg" class="org-svg" width="900px">
+Sorry, your browser does not support SVG.</object>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-orge431494">
+<h2 id="orge431494"></h2>
+<p width="900px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./alloclat.svg" class="org-svg" width="900px">
+Sorry, your browser does not support SVG.</object>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org867fb4c">
+<h2 id="org867fb4c"></h2>
+<p width="900px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./nicram.svg" class="org-svg" width="900px">
+Sorry, your browser does not support SVG.</object>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org0f9cd6b">
+<h2 id="org0f9cd6b">Evolutions in hardware</h2>
+<ul>
+<li>I/O used to be slow, but now it's pretty fast (SSD's, NVRAM's,
+100G).</li>
+<li>NVRAM's can reach sub-microsecond latency.</li>
+<li>Typical datacenter interconnect: Infiniband or Ethernet 40G.</li>
+<li>by 2019, 100-gigabit-per-second (100G) Ethernet will make up more
+than 50 percent of data center optical transceiver transmissions.</li>
+<li>Current generation Xeon: 15GB/s per channel, 8 channels per CPU.</li>
+<li>Network end-to-end latencies approaching RAM latencies.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org1217ecf">
+<h2 id="org1217ecf">Implications for software</h2>
+<p width="1000px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./delugetbl.png" alt="delugetbl.png" width="1000px" />
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org0caf25a">
+<h2 id="org0caf25a">Implications for software</h2>
+<ul>
+<li>Software becoming a prime contributor to latency.</li>
+<li>Effects that used to be hidden by hardware latency are now limiting
+factors.</li>
+<li>Poll where interrupts used to be better.</li>
+<li>Cost of a syscall: ~50ns for `read()`/`write()` of small messages.
+<ul>
+<li>Comparable to transmit time for an MTU-sized message.</li>
+
+</ul></li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org3d49990">
+<h3 id="org3d49990">Use cases</h3>
+<div class="outline-text-3" id="text-org3d49990">
+</div></section>
+<section id="slide-orgead33fa">
+<h4 id="orgead33fa">Pusher</h4>
+<ul>
+<li>Publish/subscribe service for web and mobile.</li>
+<li>Target latencies: 5ms average, 100ms 99th percentile.</li>
+<li>Small messages (100-10k bytes)</li>
+
+</ul>
+<p width="900px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./queue.svg" class="org-svg" width="900px">
+Sorry, your browser does not support SVG.</object>
+</p>
+</section>
+<section id="slide-org5fc1937">
+<h4 id="org5fc1937">Search</h4>
+<p width="1000px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./search_query.png" alt="search_query.png" width="1000px" />
+</p>
+</section>
+<section id="slide-org2374c12">
+<h4 id="org2374c12">HFT</h4>
+<p width="1000px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./hft.gif" alt="hft.gif" width="1000px" />
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org88f8a6a">
+<h2 id="org88f8a6a">Increasing throughput</h2>
+<div class="outline-text-2" id="text-org88f8a6a">
+</div></section>
+</section>
+<section>
+<section id="slide-orga224586">
+<h3 id="orga224586">Batching</h3>
+<p width="900px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./batching.svg" class="org-svg" width="900px">
+Sorry, your browser does not support SVG.</object>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org2ea81f5">
+<h3 id="org2ea81f5">Contention</h3>
+<ul>
+<li>Locks are cheap&#x2026;</li>
+<li>&#x2026; except when they're contented!</li>
+<li>In general, I/O resources more expensive when contended.</li>
+<li>Contention can hurt throughput pretty drastically.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org1aa744b">
+<h3 id="org1aa744b">Overlap</h3>
+<p width="900px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./overlap.svg" class="org-svg" width="900px">
+Sorry, your browser does not support SVG.</object>
+</p>
+
+<ul>
+<li>Bad idea for contended resources.</li>
+<li>But not all I/O resources are contended.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgba7d65a">
+<h3 id="orgba7d65a">Scaling</h3>
+<p width="900px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./scaling2.svg" class="org-svg" width="900px">
+Sorry, your browser does not support SVG.</object>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org3db1db8">
+<h3 id="org3db1db8">data locality</h3>
+<ul>
+<li>Faster layers in the I/O hierarchy, but stronger penalty for random
+access.</li>
+<li>Much higher throughput at steady state.</li>
+<li>CPU's a lot more efficient when code and data already in cache.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org3319994">
+<h2 id="org3319994">Is Haskell equipped for high-throughput low-latency?</h2>
+<div class="outline-text-2" id="text-org3319994">
+</div></section>
+</section>
+<section>
+<section id="slide-org13b4e46">
+<h3 id="org13b4e46">CPU bound services</h3>
+<ul>
+<li>Mature state-of-the-art native code compiler does wonders</li>
+<li>GHC pretty good at avoiding:
+<ul>
+<li>unnecessary data copies while retaining modularity.</li>
+<li>fusing repeated access into sequential access.</li>
+
+</ul></li>
+<li>Could do better still:
+<ul>
+<li>guarantee absence of data copies.</li>
+<li>better support for vectorization (SIMD).</li>
+
+</ul></li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org10d5b09">
+<h3 id="org10d5b09">I/O bound services</h3>
+<ul>
+<li>poor locality</li>
+<li>no prioritization</li>
+<li>high synchronization costs (MVar, oneshot).</li>
+
+</ul>
+<p width="600px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./chart.png" alt="chart.png" width="600px" />
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org38b91e7">
+<h2 id="org38b91e7">Programmable concurrency</h2>
+<div class="outline-text-2" id="text-org38b91e7">
+</div></section>
+</section>
+<section>
+<section id="slide-org5ceff92">
+<h3 id="org5ceff92">Idea: perform scheduling in Haskell</h3>
+<ul>
+<li>This is already what monad-par does.</li>
+<li>This is also what Finagle (JVM) / Wangle (C++) do.</li>
+<li>Empowers user to choose scheduling policy according to task type.</li>
+<li>Improve throughput of I/O bound tasks with LIFO policy.</li>
+<li>Round robin for CPU bound tasks (fairness).</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org2f003da">
+<h3 id="org2f003da">Coroutine monad (aka Cont)</h3>
+<div class="org-src-container">
+
+<pre><code class="haskell" >newtype Co r m a = Co ((a -&gt; m r) -&gt; m r)
+
+fork :: Co r m a -&gt; Co CoroutineId
+read :: Handle -&gt; Int -&gt; Co ByteString
+write :: Handle -&gt; ByteString -&gt; Co ()
+connect :: Address -&gt; Co Connection
+...
+</code></pre>
+</div>
+
+<ul class="fragment fade-in">
+<li>Downsides:
+<ul>
+<li>antimodular!</li>
+<li>closure allocation overhead.</li>
+<li>Solution: use sparks.</li>
+
+</ul></li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org192d8d5">
+<h2 id="org192d8d5">Further challenges</h2>
+<div class="outline-text-2" id="text-org192d8d5">
+</div></section>
+</section>
+<section>
+<section id="slide-orga62369c">
+<h3 id="orga62369c">It's peak latency that matters</h3>
+<p width="1000px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./spikes.png" alt="spikes.png" width="1000px" />
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org7342400">
+<h3 id="org7342400">What makes latency vary in a Haskell program?</h3>
+<ul>
+<li>Non-deterministic workload.</li>
+<li>The system is an important source of latency.</li>
+<li>Non-deterministic scheduling decisions.</li>
+<li>Garbage collection!</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgac2fdcf">
+<h3 id="orgac2fdcf">How does garbage collection work?</h3>
+<p width="900px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./gc1.svg" class="org-svg" width="900px">
+Sorry, your browser does not support SVG.</object>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-orgeb8f75d">
+<h3 id="orgeb8f75d">Solution: off-heap memory allocation</h3>
+<p width="900px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./gc2.svg" class="org-svg" width="900px">
+Sorry, your browser does not support SVG.</object>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-orga25399c">
+<h2 id="orga25399c">Conclusion</h2>
+<ul>
+<li>Many strategies to mitigate latency and increase throughput.</li>
+<li>But often a tradeoff: increasing throughput sometimes hurts e2e latency.</li>
+<li>Haskell well equipped to achieve good throughput, most of the time.</li>
+<li>But need better strategies to keep latencies bounded and predictable.</li>
+<li>DIY I/O management should be part of your toolkit.</li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="http://cdn.jsdelivr.net/reveal.js/3.0.0/lib/js/head.min.js"></script>
+<script src="http://cdn.jsdelivr.net/reveal.js/3.0.0/js/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: false,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: true,
+keyboard: true,
+overview: true,
+width: 1200,
+height: 800,
+margin: 0.10,
+minScale: 0.50,
+maxScale: 2.50,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'cube', // default/cube/page/concave/zoom/linear/fade/none
+transitionSpeed: 'default',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+ { src: 'http://cdn.jsdelivr.net/reveal.js/3.0.0/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }]
+});
+</script>
+</body>
+</html>
