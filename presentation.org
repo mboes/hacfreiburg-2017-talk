@@ -111,7 +111,10 @@
 ** I/O bound services
 - poor locality
 - no prioritization
-- high synchronization costs (MVar, oneshot).
+- high synchronization costs
+  + e.g. waiting for I/O events is always one-shot.
+- high synchronization latencies
+  + e.g. when sending data across threads using MVars.
 #+attr_html: :width 600px
 \nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp\nbsp[[./chart.png]]
 * Programmable concurrency
@@ -136,8 +139,8 @@ connect :: Address -> Co Connection
 - Downsides:
   + antimodular!
   + closure allocation overhead.
-  + Solution: use sparks.
-  + have to reimplement I/O management manually.
+  + have to reimplement (all or part of) I/O management manually.
+    * But, opportunity to tune I/O management to app needs.
 * Further challenges
 ** It's peak latency that matters
 #+attr_html: :width 1000px

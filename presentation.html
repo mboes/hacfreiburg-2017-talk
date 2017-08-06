@@ -30,8 +30,8 @@
 <section id="sec-title-slide"><h1 class="title">High-throughput low-latency Haskell</h1><h2 class="author">Mathieu Boespflug</h2>
 </section>
 <section>
-<section id="slide-org4e12c56">
-<h2 id="org4e12c56">Our mission</h2>
+<section id="slide-orge993777">
+<h2 id="orge993777">Our mission</h2>
 <p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -45,8 +45,8 @@ Sorry, your browser does not support SVG.</object>
 </section>
 </section>
 <section>
-<section id="slide-orga7fea1a">
-<h2 id="orga7fea1a"></h2>
+<section id="slide-orgf04bd4b">
+<h2 id="orgf04bd4b"></h2>
 <p width="900px">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./thinthrough.svg" class="org-svg" width="900px">
 Sorry, your browser does not support SVG.</object>
@@ -54,8 +54,8 @@ Sorry, your browser does not support SVG.</object>
 </section>
 </section>
 <section>
-<section id="slide-org8a7ac51">
-<h2 id="org8a7ac51"></h2>
+<section id="slide-org4bedddc">
+<h2 id="org4bedddc"></h2>
 <p width="900px">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./fatthrough.svg" class="org-svg" width="900px">
 Sorry, your browser does not support SVG.</object>
@@ -63,8 +63,8 @@ Sorry, your browser does not support SVG.</object>
 </section>
 </section>
 <section>
-<section id="slide-orge2d6033">
-<h2 id="orge2d6033"></h2>
+<section id="slide-org378f3f4">
+<h2 id="org378f3f4"></h2>
 <p width="900px">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./alloc.svg" class="org-svg" width="900px">
 Sorry, your browser does not support SVG.</object>
@@ -72,8 +72,8 @@ Sorry, your browser does not support SVG.</object>
 </section>
 </section>
 <section>
-<section id="slide-orge431494">
-<h2 id="orge431494"></h2>
+<section id="slide-org3ab86f5">
+<h2 id="org3ab86f5"></h2>
 <p width="900px">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./alloclat.svg" class="org-svg" width="900px">
 Sorry, your browser does not support SVG.</object>
@@ -81,8 +81,8 @@ Sorry, your browser does not support SVG.</object>
 </section>
 </section>
 <section>
-<section id="slide-org867fb4c">
-<h2 id="org867fb4c"></h2>
+<section id="slide-org3879533">
+<h2 id="org3879533"></h2>
 <p width="900px">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./nicram.svg" class="org-svg" width="900px">
 Sorry, your browser does not support SVG.</object>
@@ -90,8 +90,8 @@ Sorry, your browser does not support SVG.</object>
 </section>
 </section>
 <section>
-<section id="slide-org0f9cd6b">
-<h2 id="org0f9cd6b">Evolutions in hardware</h2>
+<section id="slide-org34aca80">
+<h2 id="org34aca80">Evolutions in hardware</h2>
 <ul>
 <li>I/O used to be slow, but now it's pretty fast (SSD's, NVRAM's,
 100G).</li>
@@ -106,16 +106,16 @@ than 50 percent of data center optical transceiver transmissions.</li>
 </section>
 </section>
 <section>
-<section id="slide-org1217ecf">
-<h2 id="org1217ecf">Implications for software</h2>
+<section id="slide-org6163f90">
+<h2 id="org6163f90">Implications for software</h2>
 <p width="1000px">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./delugetbl.png" alt="delugetbl.png" width="1000px" />
 </p>
 </section>
 </section>
 <section>
-<section id="slide-org0caf25a">
-<h2 id="org0caf25a">Implications for software</h2>
+<section id="slide-orgf266b5a">
+<h2 id="orgf266b5a">Implications for software</h2>
 <ul>
 <li>Software becoming a prime contributor to latency.</li>
 <li>Effects that used to be hidden by hardware latency are now limiting
@@ -131,12 +131,12 @@ factors.</li>
 </section>
 </section>
 <section>
-<section id="slide-org3d49990">
-<h3 id="org3d49990">Use cases</h3>
-<div class="outline-text-3" id="text-org3d49990">
+<section id="slide-org1bcfeda">
+<h3 id="org1bcfeda">Use cases</h3>
+<div class="outline-text-3" id="text-org1bcfeda">
 </div></section>
-<section id="slide-orgead33fa">
-<h4 id="orgead33fa">Pusher</h4>
+<section id="slide-org115e0aa">
+<h4 id="org115e0aa">Pusher</h4>
 <ul>
 <li>Publish/subscribe service for web and mobile.</li>
 <li>Target latencies: 5ms average, 100ms 99th percentile.</li>
@@ -148,28 +148,28 @@ factors.</li>
 Sorry, your browser does not support SVG.</object>
 </p>
 </section>
-<section id="slide-org5fc1937">
-<h4 id="org5fc1937">Search</h4>
+<section id="slide-org2aea34d">
+<h4 id="org2aea34d">Search</h4>
 <p width="1000px">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./search_query.png" alt="search_query.png" width="1000px" />
 </p>
 </section>
-<section id="slide-org2374c12">
-<h4 id="org2374c12">HFT</h4>
+<section id="slide-org13e93b6">
+<h4 id="org13e93b6">HFT</h4>
 <p width="1000px">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./hft.gif" alt="hft.gif" width="1000px" />
 </p>
 </section>
 </section>
 <section>
-<section id="slide-org88f8a6a">
-<h2 id="org88f8a6a">Increasing throughput</h2>
-<div class="outline-text-2" id="text-org88f8a6a">
+<section id="slide-org34dbc10">
+<h2 id="org34dbc10">Increasing throughput</h2>
+<div class="outline-text-2" id="text-org34dbc10">
 </div></section>
 </section>
 <section>
-<section id="slide-orga224586">
-<h3 id="orga224586">Batching</h3>
+<section id="slide-org2349162">
+<h3 id="org2349162">Batching</h3>
 <p width="900px">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./batching.svg" class="org-svg" width="900px">
 Sorry, your browser does not support SVG.</object>
@@ -177,8 +177,8 @@ Sorry, your browser does not support SVG.</object>
 </section>
 </section>
 <section>
-<section id="slide-org2ea81f5">
-<h3 id="org2ea81f5">Contention</h3>
+<section id="slide-orga6c4d90">
+<h3 id="orga6c4d90">Contention</h3>
 <ul>
 <li>Locks are cheap&#x2026;</li>
 <li>&#x2026; except when they're contented!</li>
@@ -189,8 +189,8 @@ Sorry, your browser does not support SVG.</object>
 </section>
 </section>
 <section>
-<section id="slide-org1aa744b">
-<h3 id="org1aa744b">Overlap</h3>
+<section id="slide-org9fc9f0b">
+<h3 id="org9fc9f0b">Overlap</h3>
 <p width="900px">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./overlap.svg" class="org-svg" width="900px">
 Sorry, your browser does not support SVG.</object>
@@ -204,8 +204,8 @@ Sorry, your browser does not support SVG.</object>
 </section>
 </section>
 <section>
-<section id="slide-orgba7d65a">
-<h3 id="orgba7d65a">Scaling</h3>
+<section id="slide-org95bdfd6">
+<h3 id="org95bdfd6">Scaling</h3>
 <p width="900px">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./scaling2.svg" class="org-svg" width="900px">
 Sorry, your browser does not support SVG.</object>
@@ -213,8 +213,8 @@ Sorry, your browser does not support SVG.</object>
 </section>
 </section>
 <section>
-<section id="slide-org3db1db8">
-<h3 id="org3db1db8">data locality</h3>
+<section id="slide-org2322826">
+<h3 id="org2322826">data locality</h3>
 <ul>
 <li>Faster layers in the I/O hierarchy, but stronger penalty for random
 access.</li>
@@ -225,14 +225,14 @@ access.</li>
 </section>
 </section>
 <section>
-<section id="slide-org3319994">
-<h2 id="org3319994">Is Haskell equipped for high-throughput low-latency?</h2>
-<div class="outline-text-2" id="text-org3319994">
+<section id="slide-org708db93">
+<h2 id="org708db93">Is Haskell equipped for high-throughput low-latency?</h2>
+<div class="outline-text-2" id="text-org708db93">
 </div></section>
 </section>
 <section>
-<section id="slide-org13b4e46">
-<h3 id="org13b4e46">CPU bound services</h3>
+<section id="slide-org6feeb1a">
+<h3 id="org6feeb1a">CPU bound services</h3>
 <ul>
 <li>Mature state-of-the-art native code compiler does wonders</li>
 <li>GHC pretty good at avoiding:
@@ -252,12 +252,21 @@ access.</li>
 </section>
 </section>
 <section>
-<section id="slide-org10d5b09">
-<h3 id="org10d5b09">I/O bound services</h3>
+<section id="slide-org8ec2f8f">
+<h3 id="org8ec2f8f">I/O bound services</h3>
 <ul>
 <li>poor locality</li>
 <li>no prioritization</li>
-<li>high synchronization costs (MVar, oneshot).</li>
+<li>high synchronization costs
+<ul>
+<li>e.g. waiting for I/O events is always one-shot.</li>
+
+</ul></li>
+<li>high synchronization latencies
+<ul>
+<li>e.g. when sending data across threads using MVars.</li>
+
+</ul></li>
 
 </ul>
 <p width="600px">
@@ -266,14 +275,14 @@ access.</li>
 </section>
 </section>
 <section>
-<section id="slide-org38b91e7">
-<h2 id="org38b91e7">Programmable concurrency</h2>
-<div class="outline-text-2" id="text-org38b91e7">
+<section id="slide-org068d55c">
+<h2 id="org068d55c">Programmable concurrency</h2>
+<div class="outline-text-2" id="text-org068d55c">
 </div></section>
 </section>
 <section>
-<section id="slide-org5ceff92">
-<h3 id="org5ceff92">Idea: perform scheduling in Haskell</h3>
+<section id="slide-org9af45e8">
+<h3 id="org9af45e8">Idea: perform scheduling in Haskell</h3>
 <ul>
 <li>This is already what monad-par does.</li>
 <li>This is also what Finagle (JVM) / Wangle (C++) do.</li>
@@ -285,8 +294,8 @@ access.</li>
 </section>
 </section>
 <section>
-<section id="slide-org2f003da">
-<h3 id="org2f003da">Coroutine monad (aka Cont)</h3>
+<section id="slide-orgfe6227b">
+<h3 id="orgfe6227b">Coroutine monad (aka Cont)</h3>
 <div class="org-src-container">
 
 <pre><code class="haskell" >newtype Co r m a = Co ((a -&gt; m r) -&gt; m r)
@@ -304,7 +313,11 @@ connect :: Address -&gt; Co Connection
 <ul>
 <li>antimodular!</li>
 <li>closure allocation overhead.</li>
-<li>Solution: use sparks.</li>
+<li>have to reimplement (all or part of) I/O management manually.
+<ul>
+<li>But, opportunity to tune I/O management to app needs.</li>
+
+</ul></li>
 
 </ul></li>
 
@@ -312,22 +325,22 @@ connect :: Address -&gt; Co Connection
 </section>
 </section>
 <section>
-<section id="slide-org192d8d5">
-<h2 id="org192d8d5">Further challenges</h2>
-<div class="outline-text-2" id="text-org192d8d5">
+<section id="slide-org69ef7e9">
+<h2 id="org69ef7e9">Further challenges</h2>
+<div class="outline-text-2" id="text-org69ef7e9">
 </div></section>
 </section>
 <section>
-<section id="slide-orga62369c">
-<h3 id="orga62369c">It's peak latency that matters</h3>
+<section id="slide-org72ae73c">
+<h3 id="org72ae73c">It's peak latency that matters</h3>
 <p width="1000px">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./spikes.png" alt="spikes.png" width="1000px" />
 </p>
 </section>
 </section>
 <section>
-<section id="slide-org7342400">
-<h3 id="org7342400">What makes latency vary in a Haskell program?</h3>
+<section id="slide-org951014d">
+<h3 id="org951014d">What makes latency vary in a Haskell program?</h3>
 <ul>
 <li>Non-deterministic workload.</li>
 <li>The system is an important source of latency.</li>
@@ -338,8 +351,8 @@ connect :: Address -&gt; Co Connection
 </section>
 </section>
 <section>
-<section id="slide-orgac2fdcf">
-<h3 id="orgac2fdcf">How does garbage collection work?</h3>
+<section id="slide-org1d31bf2">
+<h3 id="org1d31bf2">How does garbage collection work?</h3>
 <p width="900px">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./gc1.svg" class="org-svg" width="900px">
 Sorry, your browser does not support SVG.</object>
@@ -347,8 +360,8 @@ Sorry, your browser does not support SVG.</object>
 </section>
 </section>
 <section>
-<section id="slide-orgeb8f75d">
-<h3 id="orgeb8f75d">Solution: off-heap memory allocation</h3>
+<section id="slide-orgacaba5f">
+<h3 id="orgacaba5f">Solution: off-heap memory allocation</h3>
 <p width="900px">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<object type="image/svg+xml" data="./gc2.svg" class="org-svg" width="900px">
 Sorry, your browser does not support SVG.</object>
@@ -356,8 +369,8 @@ Sorry, your browser does not support SVG.</object>
 </section>
 </section>
 <section>
-<section id="slide-orga25399c">
-<h2 id="orga25399c">Conclusion</h2>
+<section id="slide-orge8c6195">
+<h2 id="orge8c6195">Conclusion</h2>
 <ul>
 <li>Many strategies to mitigate latency and increase throughput.</li>
 <li>But often a tradeoff: increasing throughput sometimes hurts e2e latency.</li>
